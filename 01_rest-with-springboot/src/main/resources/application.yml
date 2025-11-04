@@ -1,1 +1,35 @@
-spring.application.name=rest-with-springboot
+cors:
+  originPatterns: http://localhost:8080,http://localhost:3000
+file:
+  upload-dir: /temp/TesteUpload
+spring:
+  application:
+    name: rest-with-springboot
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+  data:
+    jdbc:
+    dialect: org.hibernate.dialect.MySQL8Dialect
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/rest_with_springboot?useTimeZone=true&serverTimeZone=UTC
+    username: root
+    password: root
+logging:
+  level:
+    br.com.marconefreitas: INFO
+spring-doc:
+  paths-to-match : /api/v1/**/**
+  swagger-ui:
+    use-root-path: true
+
+
