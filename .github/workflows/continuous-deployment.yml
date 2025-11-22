@@ -37,6 +37,6 @@ jobs:
           docker tag marconefreitas/rest-with-springboot:latest marconefreitas/rest-with-springboot:${{github.run_id}}
           docker push marconefreitas/rest-with-springboot:latest
           docker push marconefreitas/rest-with-springboot:${{github.run_id}}
-    uses:
+
 
 
