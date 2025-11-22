@@ -1,0 +1,37 @@
+services:
+  db:
+    image: mysql:9.1.0
+    #command: mysqld --default_authentication_plugin=mysql_native_password
+    restart: always
+    environment:
+      TZ: America/Sao_Paulo
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: rest_with_springboot
+    ports:
+      - "3308:3306"
+    expose:
+      - 3306
+    networks:
+      - marcone-network
+  rest-with-spring-boot:
+    image: marconefreitas/rest-with-spring-boot
+    restart: always
+    build: ./01_rest-with-springboot
+    working_dir: /01_rest-with-springboot
+    ports:
+      - "80:80"
+    environment:
+      TZ: America/Sao_Paulo
+      SPRING.DATASOURCE.URL: jdbc:mysql://db:3306/rest_with_springboot?useTimeZone=true&serverTimeZone=UTC
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: root
+    command: mvn spring-boot:run
+    depends_on:
+      - db
+    networks:
+      - marcone-network
+networks:
+  marcone-network:
+    driver: bridge
