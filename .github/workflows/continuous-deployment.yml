@@ -34,9 +34,8 @@ jobs:
 
       - name: Push to Docker Hub
         run: |
-          docker tag marconefreitas/rest-with-springboot:latest marconefreitas/rest-with-springboot:${{github.run_id}}
-          docker push marconefreitas/rest-with-springboot:latest
-          docker push marconefreitas/rest-with-springboot:${{github.run_id}}
+          docker tag marconefreitas/rest-with-spring-boot:latest marconefreitas/rest-with-spring-boot:${{github.run_id}}     
+          docker push marconefreitas/rest-with-spring-boot:${{github.run_id}}
 
 
 
