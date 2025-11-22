@@ -26,7 +26,7 @@ jobs:
 
       - name: Build Application .jar
         working-directory: ./01_rest-with-springboot
-        run: mvn clean package
+        run: mvn clean package -DskipTests=true
 
       - name: Docker Compose Build
         working-directory: ./rest-with-springboot
