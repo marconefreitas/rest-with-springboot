@@ -20,9 +20,9 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          distribution: 'adopt' # See 'Supported distributions' for available options
+          distribution: 'adopt'
           java-version: '21'
-          cache: maven
+          #cache: maven
 
       - name: Build Application .jar
         working-directory: ./01_rest-with-springboot
