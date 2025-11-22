@@ -29,9 +29,14 @@ jobs:
         run: mvn clean package
 
       - name: Docker Compose Build
-        working-directory:
+        working-directory: ./rest-with-springboot
+        run: docker compose build
 
       - name: Push to Docker Hub
+        run: |
+          docker tag marconefreitas/rest-with-springboot:latest marconefreitas/rest-with-springboot:${{github.run_id}}
+          docker push marconefreitas/rest-with-springboot:latest
+          docker push marconefreitas/rest-with-springboot:${{github.run_id}}
     uses:
 
 
