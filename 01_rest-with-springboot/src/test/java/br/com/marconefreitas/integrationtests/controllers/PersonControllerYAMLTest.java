@@ -2,7 +2,9 @@ package br.com.marconefreitas.integrationtests.controllers;
 
 import br.com.marconefreitas.config.TestConfigs;
 import br.com.marconefreitas.integrationtests.AbstractIntegrationTest;
+import br.com.marconefreitas.integrationtests.dto.AccountCredentialsDTO;
 import br.com.marconefreitas.integrationtests.dto.PersonDTO;
+import br.com.marconefreitas.integrationtests.dto.TokenDTO;
 import br.com.marconefreitas.integrationtests.wrappers.xml.PagedModel;
 import br.com.marconefreitas.mapper.YAMLMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,24 +32,60 @@ public class PersonControllerYAMLTest extends AbstractIntegrationTest {
     private static YAMLMapper objectMapper;
     private static PersonDTO person;
 
+    private static TokenDTO token;
+
     @BeforeAll
     static void setUp() {
         objectMapper = new YAMLMapper();
         person = new PersonDTO();
+        token = new TokenDTO();
+    }
+
+    @Test
+    @Order(0)
+    void signIn() throws JsonProcessingException {
+        AccountCredentialsDTO cred = new AccountCredentialsDTO("marcone", "admin123");
+
+        token =  given()
+                .config(RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig
+                                .encoderConfig()
+                                .encodeContentTypeAs(MediaType.APPLICATION_YAML_VALUE,
+                                        ContentType.TEXT)))
+                .log().all()
+                .basePath("/auth/signin")
+                .port(TestConfigs.SERVER_PORT)
+                .contentType(MediaType.APPLICATION_YAML_VALUE)
+                .accept(MediaType.APPLICATION_YAML_VALUE)
+                .body(cred, objectMapper)
+                .when()
+                .post()
+                .then().statusCode(200)
+                .extract()
+                .body().as(TokenDTO.class, objectMapper);
+
+        requestSpecBuilder = new RequestSpecBuilder()
+                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN,
+                        TestConfigs.ORIGIN_3)
+                .addHeader(TestConfigs.HEADER_PARAM_AUTHORIZATION, "Bearer " + token.getRefreshToken())
+                .setBasePath("/api/v1/person")
+                .setPort(TestConfigs.SERVER_PORT)
+                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
+                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+                .build();
+
+
+        Assertions.assertNotNull(token.getAccessToken());
+        Assertions.assertNotNull(token.getRefreshToken());
+
     }
 
     @Test
     @Order(1)
     void create() throws JsonProcessingException {
         mockPerson();
-        requestSpecBuilder = new RequestSpecBuilder()
-                .addHeader(TestConfigs.HEADER_PARAM_ORIGIN,
-                        TestConfigs.ORIGIN_3)
-                .setBasePath("/api/v1/person")
-                .setPort(TestConfigs.SERVER_PORT)
-                .addFilter(new RequestLoggingFilter(LogDetail.ALL))
-                .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-                .build();
+
 
         PersonDTO createdPerson =  given()
                 .config(RestAssuredConfig

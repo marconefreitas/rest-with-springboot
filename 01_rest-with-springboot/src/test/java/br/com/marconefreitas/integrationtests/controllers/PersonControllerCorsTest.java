@@ -2,7 +2,9 @@ package br.com.marconefreitas.integrationtests.controllers;
 
 import br.com.marconefreitas.config.TestConfigs;
 import br.com.marconefreitas.integrationtests.AbstractIntegrationTest;
+import br.com.marconefreitas.integrationtests.dto.AccountCredentialsDTO;
 import br.com.marconefreitas.integrationtests.dto.PersonDTO;
+import br.com.marconefreitas.integrationtests.dto.TokenDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,12 +28,38 @@ class PersonControllerCorsTest extends AbstractIntegrationTest {
     private static ObjectMapper objectMapper;
     private static PersonDTO person;
 
+    private static TokenDTO token;
+
     @BeforeAll
     static void setUp() {
         objectMapper = new ObjectMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         person = new PersonDTO();
+        token = new TokenDTO();
     }
+
+    @Test
+    @Order(0)
+    void signIn() {
+        AccountCredentialsDTO cred = new AccountCredentialsDTO("marcone", "admin123");
+
+        token =  given()
+                .log().all()
+                .basePath("/auth/signin")
+                .port(TestConfigs.SERVER_PORT)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(cred)
+                .when()
+                .post()
+                .then().statusCode(200)
+                .extract()
+                .body().as(TokenDTO.class);
+
+        Assertions.assertNotNull(token.getAccessToken());
+        Assertions.assertNotNull(token.getRefreshToken());
+
+    }
+
 
     @Test
     @Order(3)
@@ -39,6 +67,7 @@ class PersonControllerCorsTest extends AbstractIntegrationTest {
         requestSpecBuilder = new RequestSpecBuilder()
                 .addHeader(TestConfigs.HEADER_PARAM_ORIGIN,
                         TestConfigs.ORIGIN_3)
+                .addHeader(TestConfigs.HEADER_PARAM_AUTHORIZATION, "Bearer " + token.getAccessToken())
                 .setBasePath("/api/v1/person")
                 .setPort(TestConfigs.SERVER_PORT)
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))
@@ -64,6 +93,7 @@ class PersonControllerCorsTest extends AbstractIntegrationTest {
         requestSpecBuilder = new RequestSpecBuilder()
                 .addHeader(TestConfigs.HEADER_PARAM_ORIGIN,
                            TestConfigs.ORIGIN_3)
+                .addHeader(TestConfigs.HEADER_PARAM_AUTHORIZATION, "Bearer " + token.getAccessToken())
                 .setBasePath("/api/v1/person")
                 .setPort(TestConfigs.SERVER_PORT)
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))
@@ -92,6 +122,7 @@ class PersonControllerCorsTest extends AbstractIntegrationTest {
         requestSpecBuilder = new RequestSpecBuilder()
                 .addHeader(TestConfigs.HEADER_PARAM_ORIGIN,
                            TestConfigs.ORIGIN_2)
+                .addHeader(TestConfigs.HEADER_PARAM_AUTHORIZATION, "Bearer " + token.getAccessToken())
                 .setBasePath("/api/v1/person")
                 .setPort(TestConfigs.SERVER_PORT)
                 .addFilter(new RequestLoggingFilter(LogDetail.ALL))

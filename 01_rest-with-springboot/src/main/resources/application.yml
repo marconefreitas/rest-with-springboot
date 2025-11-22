@@ -1,7 +1,17 @@
+
 cors:
   originPatterns: http://localhost:8080,http://localhost:3000
 file:
   upload-dir: /temp/TesteUpload
+security:
+  jwt:
+    token:
+      secret-key: secret
+      expire-length: 3600000
+
+email:
+  subject: "Default Subject"
+  message: "Default Message"
 spring:
   application:
     name: rest-with-springboot
@@ -10,6 +20,15 @@ spring:
     show-sql: false
     hibernate:
       ddl-auto: none
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: marcfreitas0@gmail.com #${EMAIL_USERNAME}$
+    password: qgbtkxnyjvabxdbu #${EMAIL_PASSWORD}$
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enabled: true
+      mail.smtp.starttls.required: true
   data:
     jdbc:
     dialect: org.hibernate.dialect.MySQL8Dialect
@@ -26,10 +45,13 @@ spring:
     password: root
 logging:
   level:
-    br.com.marconefreitas: INFO
+    root: INFO
 spring-doc:
-  paths-to-match : /api/v1/**/**
+  paths-to-match :
+  - /api/v1/**/**
+  - /auth/**/**
   swagger-ui:
     use-root-path: true
-
+server:
+  port: 80
 
